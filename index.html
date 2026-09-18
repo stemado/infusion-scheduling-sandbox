@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why is time empty while patients wait? · Guided demo</title>
+<style>
+
+:root{color-scheme:dark;--bg:#111d2b;--panel:#19293a;--panel2:#213449;--line:#3b5064;--text:#eff4f9;--muted:#b1c2d0;--accent:#b0e4d3;--warn:#ffb5a8;--a:#a6cdf4;--b:#f3d79e;--c:#e9acc7;--d:#cabaff;--label:128px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 "Segoe UI",Arial,sans-serif}button,select{font:inherit}button{cursor:pointer}button:focus-visible,summary:focus-visible{outline:3px solid #fff;outline-offset:4px}button{min-height:44px}main{max-width:1350px;margin:0 auto;padding:30px 32px 24px}header{display:flex;gap:25px;justify-content:space-between;align-items:center;margin-bottom:22px}.eyebrow{color:var(--accent);font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;margin:0 0 7px}h1{font-family:Bahnschrift,"Segoe UI",sans-serif;font-weight:600;font-size:clamp(28px,3vw,40px);line-height:1.15;letter-spacing:-.035em;margin:0 0 10px}.lede{color:var(--muted);max-width:720px;margin:0;font-size:16px}.scope{max-width:240px;border-left:2px solid var(--line);padding-left:17px;font-size:12px;color:var(--muted)}.scope strong{display:block;color:var(--text);font-size:13px;margin-bottom:3px}
+.examples{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:19px}.example{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:9px;text-align:left;padding:10px 15px;display:flex;align-items:center;gap:11px}.example span:first-child{border:1px solid var(--line);border-radius:50%;width:27px;height:27px;display:grid;place-items:center;font-size:12px;flex-shrink:0}.example strong{display:block;color:var(--text);font-weight:600}.example small{font-size:12px}.example[aria-pressed=true]{background:var(--panel2);border-color:var(--accent)}.example[aria-pressed=true] span:first-child{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.toolbar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.modes{display:flex;gap:4px;background:#0c1723;padding:5px;border-radius:9px}.mode{border:0;border-radius:5px;padding:8px 18px;background:transparent;color:var(--muted);font-weight:600}.mode[aria-pressed=true]{background:var(--panel2);color:var(--text);box-shadow:inset 0 -3px var(--warn)}.mode.desired[aria-pressed=true]{box-shadow:inset 0 -3px var(--accent)}.follow{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}.patient-pick{width:44px;border-radius:50%;background:transparent;color:var(--text);border:1px solid var(--line);font-weight:700}.patient-pick[aria-pressed=true]{background:var(--patient);color:#122133;border-color:var(--patient)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 305px;gap:22px}.boards{min-width:0}.board{border:1px solid var(--line);background:var(--panel);border-radius:12px;overflow:hidden}.board-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px 10px}.board h2{font-size:16px;margin:0;font-weight:650}.board-sub{font-size:12px;color:var(--muted);margin:2px 0 0}.count{font-size:12px;border:1px solid var(--line);border-radius:20px;padding:4px 10px;white-space:nowrap}.count.problem{color:var(--warn);border-color:#a96b67}.count.good{color:var(--accent);border-color:#679c91}.timeline-wrap{overflow-x:auto;padding:0 18px 12px}.timeline{min-width:470px}.axis{position:relative;height:28px;margin-left:var(--label);color:var(--muted);font:11px/1.3 Consolas,monospace}.tick{position:absolute;bottom:5px;transform:translateX(-50%)}.tick:first-child{transform:none}.tick:last-child{transform:translateX(-100%)}.row{display:grid;grid-template-columns:var(--label) minmax(0,1fr);align-items:stretch}.row-label{font-size:12px;padding:9px 8px 7px 0;color:var(--muted)}.row-label strong{display:block;color:var(--text);font-weight:600}.row-label small{font-size:11px;display:block;line-height:1.4}.track{position:relative;min-height:42px;background:repeating-linear-gradient(to right,transparent 0,transparent calc(25% - 1px),#45576a66 calc(25% - 1px),#45576a66 25%);border-top:1px solid #354b60;isolation:isolate}.off-shift{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(-45deg,#101c29 0,#101c29 5px,#29394b 5px,#29394b 6px);z-index:-1;display:flex;align-items:center;justify-content:center;color:#d2dbe3;font-size:11px}.event{position:absolute;height:30px;top:5px;border-radius:4px;background:var(--patient);color:#172438;padding:4px 7px;overflow:hidden;white-space:nowrap;font-size:12px;line-height:20px;transition:left .35s,width .35s,opacity .2s;opacity:.64}.event strong{font-weight:750}.event.selected{opacity:1;box-shadow:0 0 0 2px #f5f7fb;z-index:2}.event.pending{background:transparent;color:var(--patient);border:2px dashed var(--patient);line-height:16px;padding:4px 5px}.event.proposed{background:repeating-linear-gradient(-45deg,var(--patient) 0,var(--patient) 7px,color-mix(in srgb,var(--patient),white 22%) 7px,color-mix(in srgb,var(--patient),white 22%) 9px)}.event .event-detail{margin-left:5px;font-size:11px}.rule-mark{position:absolute;top:0;bottom:0;border-left:2px dashed var(--warn);z-index:0;pointer-events:none}.row.unassigned .track{background-color:#492e3940}.row.unassigned .row-label strong{color:var(--warn)}
+.connector{padding:10px 15px;display:flex;align-items:center;gap:11px;color:var(--muted);font-size:12px}.connector .arrow{color:var(--accent);font-size:22px}.connector strong{color:var(--text);font-weight:600}.board-foot{margin:0;padding:3px 18px 14px;font-size:12px;color:var(--muted)}.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:11px}.legend span{display:flex;align-items:center;gap:6px}.swatch{width:15px;height:12px;background:var(--c);border-radius:2px}.swatch.dashed{background:none;border:1px dashed var(--c)}.swatch.hatched{background:repeating-linear-gradient(-45deg,var(--accent) 0,var(--accent) 3px,#44685e 3px,#44685e 4px)}
+.aside{display:flex;flex-direction:column;gap:15px}.explanation{border-top:3px solid var(--warn);padding-top:12px}.explanation.desired{border-top-color:var(--accent)}.mode-caption{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 7px}.explanation h2{font-family:Bahnschrift,"Segoe UI",sans-serif;font-size:25px;line-height:1.2;letter-spacing:-.02em;margin:0 0 10px}.explanation p{font-size:14px;margin:0 0 11px}.change{padding:10px 12px;background:var(--panel2);border-left:3px solid var(--accent);font-size:12px!important}.change strong{display:block;margin-bottom:4px}.selection{padding:12px;border:1px solid var(--line);border-radius:8px}.selection-title{font-size:12px;font-weight:700;margin:0 0 6px}.selection p{font-size:12px;margin:0;color:var(--muted)}.selection .tag{width:20px;height:20px;display:inline-grid;place-items:center;background:var(--patient);color:var(--bg);border-radius:4px;margin-right:7px}.rules{font-size:12px;color:var(--muted)}.rules h3{font-size:12px;color:var(--text);margin:0 0 6px}.rules ul{padding-left:18px;margin:0}.rules li{margin-bottom:5px}.question{margin-top:auto;border-radius:8px;background:var(--panel2);padding:13px}.question h3{font-size:12px;margin:0 0 6px;color:var(--accent)}.question p{font-size:13px;margin:0 0 7px}.copy{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:5px;padding:6px 12px;font-size:12px}.copy:hover,.example:hover{border-color:var(--accent)}footer{margin-top:23px;border-top:1px solid var(--line);padding-top:13px;color:var(--muted);font-size:12px}details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--text);font-weight:600}details summary::before{content:'＋';margin-right:8px}details[open] summary::before{content:'−'}details p{margin:0 0 8px;max-width:920px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+#nurses .row:not(.unassigned) .track{background-image:repeating-linear-gradient(to right,transparent 0,transparent calc(25% - 1px),#45576a66 calc(25% - 1px),#45576a66 25%),repeating-linear-gradient(to bottom,transparent 0,transparent 35px,#45576a55 35px,#45576a55 36px)}
+@media(max-width:1050px){main{padding:24px 20px}.layout{grid-template-columns:minmax(0,1fr) 270px;gap:17px}.scope{display:none}:root{--label:106px}.event-detail{display:none}}
+@media(max-width:780px){main{padding:22px 14px}.layout{grid-template-columns:1fr}.aside{display:grid;grid-template-columns:1fr 1fr;gap:18px}.explanation,.question{grid-column:1/-1}.examples{gap:6px}.example{padding:9px 10px}.example small,.example span:first-child{display:none}.example strong{font-size:12px}.toolbar{gap:12px}.modes{width:100%}.mode{flex:1;font-size:13px;padding:9px 12px}.follow{margin-left:auto}.explanation h2{font-size:23px}.board-title{padding:13px 12px 8px}.timeline-wrap{padding:0 12px 12px}.board h2{font-size:15px}.count{font-size:11px}.board-foot{padding:3px 12px 12px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{body{background:white;color:#102133}main{max-width:none;padding:0}.toolbar,.examples,.copy{display:none}.layout{display:block}.aside{margin-top:20px}.board{break-inside:avoid}.scope{display:block}.event{opacity:1}footer{font-size:10px}}
+
+[hidden]{display:none!important}
+main{padding-bottom:110px}header{margin-bottom:18px}h1{font-size:clamp(27px,3vw,37px)}.examples{grid-template-columns:repeat(4,1fr);margin-bottom:16px}.example{padding:9px 11px}.example small{font-size:11px}.scope{font-size:11px}.guide{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-bottom:18px;overflow:hidden}.steps{display:grid;grid-template-columns:repeat(4,1fr);background:#0c1723;padding:5px;gap:4px}.step{border:0;background:transparent;color:var(--muted);border-radius:5px;font-size:13px;padding:7px 10px;text-align:left}.step[aria-current=step]{background:var(--panel2);color:var(--accent)}.step .step-number{font:12px Consolas,monospace;opacity:.8;margin-right:7px}.guide-copy{padding:13px 17px;display:flex;align-items:center;gap:20px}.guide-copy h2{font-size:19px;margin:0 0 4px;line-height:1.3}.guide-copy p{font-size:13px;color:var(--muted);margin:0;max-width:840px}.guide-copy .eyebrow{color:var(--accent);font-size:10px;margin-bottom:4px}.toolbar{margin-bottom:13px}.modes{padding:3px}.mode{font-size:12px}.follow{font-size:12px}.layout{grid-template-columns:minmax(0,1fr) 340px}.board-title{align-items:flex-start}.board-sub{max-width:390px}.board{margin-bottom:13px}.timeline{min-width:430px}.event{opacity:.8}.count{white-space:normal;text-align:center;max-width:155px}.compare-department{margin-bottom:12px}.secondary{background:transparent;color:var(--muted);border:1px solid var(--line);padding:8px 12px;border-radius:6px;font-size:12px}.secondary:hover{color:var(--text);border-color:var(--accent)}.coverage-band{position:absolute;top:5px;bottom:5px;border:1px solid #659887;background:#b0e4d314;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent)}.intro-card{border-left:3px solid var(--accent);padding:3px 0 3px 15px}.intro-card h2{font-size:22px;line-height:1.25;margin:0 0 9px}.intro-card p{font-size:14px;color:var(--muted);margin:0 0 12px}.intro-card .focus-note{color:var(--text);font-size:13px}.rule-box{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px}.rule-box h3{font-size:12px;margin:0 0 7px}.rule-box ul{margin:0;padding-left:17px;color:var(--muted);font-size:12px}.rule-box li{margin-bottom:5px}.phase-note{background:var(--panel2);padding:11px 13px;border-radius:7px;font-size:12px;margin-bottom:12px;color:var(--muted)}.phase-note strong{color:var(--text)}.diagnosis{margin:0}.diagnosis h3{font-size:14px;margin:0 0 7px}.diagnostic{padding:10px 11px;margin-bottom:7px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:6px}.diagnostic.eligible{border-left-color:var(--accent)}.diagnostic-title{font-size:12px;font-weight:700;display:flex;justify-content:space-between;gap:7px}.diagnostic-status{color:var(--warn);font-weight:400}.eligible .diagnostic-status{color:var(--accent)}.diagnostic ul{margin:5px 0 0;padding-left:16px;color:var(--muted);font-size:12px}.diagnostic p{margin:5px 0 0;color:var(--muted);font-size:12px}.experiment-title{font-size:15px;margin:0 0 3px}.experiment-hint{font-size:12px;color:var(--muted);margin:0 0 9px}.experiments{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}.experiment{border:1px solid var(--line);border-radius:7px;background:var(--panel);padding:9px;text-align:left;color:var(--text);font-size:12px;line-height:1.3}.experiment[aria-pressed=true]{border-color:var(--accent);background:var(--panel2);box-shadow:inset 0 -2px var(--accent)}.experiment small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.result{padding:13px;background:#3a2934;border:1px solid #77505b;border-radius:8px;margin-bottom:12px}.result.fit{background:#17352f;border-color:#4c8574}.result p{font-size:13px;margin:4px 0 0}.result h3{font-size:17px;line-height:1.25;margin:0;color:var(--warn)}.result.fit h3{color:var(--accent)}.result .change-note{color:var(--muted);font-size:12px;border-top:1px solid #ffffff26;margin-top:9px;padding-top:9px}.proof{padding:12px;background:var(--panel2);border-left:3px solid var(--warn);font-size:12px;margin-bottom:12px}.proof strong{display:block;margin-bottom:5px}.proof p{margin:0;color:var(--muted)}.selection{margin-bottom:12px}.aside{gap:13px}.question{margin-top:0}.board-foot{font-size:12px}.legend{margin-bottom:12px}.guide-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#101b29f5;border-top:1px solid var(--line);backdrop-filter:blur(10px)}.nav-inner{max-width:1350px;margin:auto;padding:11px 32px;display:flex;align-items:center;gap:10px}.nav-position{margin-right:auto;font-size:12px;color:var(--muted)}.nav-position strong{display:block;color:var(--text);font-weight:600}.back,.next{border-radius:6px;padding:9px 16px;min-width:90px}.back{border:1px solid var(--line);background:transparent;color:var(--text)}.back:disabled{opacity:.4;cursor:default}.next{border:1px solid var(--accent);background:var(--accent);color:#102b24;font-weight:700}.reset{font-size:12px;margin-top:9px}.scenario-done{font-size:12px;color:var(--muted);margin:0 0 10px}#nurse-board.coverage-only .row-label{padding-top:8px}.working-resources{font-size:12px;color:var(--muted);margin:0 0 12px}.working-resources strong{color:var(--text)}.step-current-message{color:var(--accent)}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr) 290px}.example span:first-child{display:none}.example{padding:9px}.event-detail{display:none}.examples small{font-size:10px}}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.aside{display:flex}.examples{grid-template-columns:repeat(2,1fr)}.examples small{display:block;font-size:11px}.examples strong{font-size:13px}.steps{gap:1px}.step{padding:8px 6px;font-size:11px}.step .step-number{display:block;margin-bottom:3px}.guide-copy{padding:12px}.guide-copy h2{font-size:18px}.guide-copy p{font-size:12px}.guide{margin-bottom:13px}.nav-inner{padding:10px 13px;gap:8px}.nav-position{font-size:10px;max-width:130px}.back,.next{font-size:12px;min-width:65px;padding:8px 11px}.count{max-width:135px}.modes{width:auto}.toolbar{flex-wrap:wrap}.follow{margin-left:auto}.intro-card h2{font-size:20px}.experiment{font-size:13px}}
+@media(max-width:420px){.nav-position strong{max-width:100px}.next{max-width:158px}.nav-inner{gap:6px}.toolbar{gap:8px}.follow{margin-left:0}.step{font-size:10px}}
+@media print{.guide-nav,.guide,.compare-department,.experiment,.reset{display:none}main{padding-bottom:0}}
+.backlog-context{display:flex;gap:25px;align-items:center;padding:15px 18px;margin:0 0 19px;border:1px solid #9f7970;border-left:4px solid var(--warn);border-radius:9px;background:#352b3040}.backlog-context>strong{color:var(--warn);font-size:18px;white-space:nowrap}.backlog-context small{display:block;font-size:11px;color:var(--muted);font-weight:400}.backlog-context p{margin:0;color:var(--muted);font-size:13px;max-width:800px}.examples{grid-template-columns:repeat(5,minmax(0,1fr))}.examples strong{font-size:13px}.examples small{line-height:1.3;display:block}.forecast-flow{display:flex;align-items:center;gap:14px;padding:15px 18px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:17px}.forecast-flow>div{flex:1}.forecast-flow small{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;display:block}.forecast-flow strong{font-size:16px;display:block;margin:2px 0}.forecast-flow div>span{font-size:12px;color:var(--muted);display:block}.flow-arrow{font-size:23px;color:var(--muted)}.duration-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px}.duration-main{min-width:0}.d-reserved{position:absolute;left:0;right:3px;top:5px;bottom:5px;display:flex;align-items:center;justify-content:center;gap:16px;border:2px dashed #e7bf79;background:#e7bf7910;color:#f3d79e;border-radius:6px}.d-reserved strong{font-size:15px}.d-reserved span{font-size:11px}.d-section-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;margin:0 0 9px}.d-section-heading h2{font-size:15px;margin:0}.d-section-heading>span{font-size:11px;color:var(--muted)}.d-queue{margin:16px 0}.d-patients{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.d-patient{padding:11px 12px;border:1px solid var(--line);border-left:4px solid var(--patient);background:var(--panel);border-radius:6px}.d-patient.chosen{outline:1px solid var(--patient)}.d-patient strong{display:block;color:var(--patient);font-size:16px}.d-patient strong span{font-size:13px;margin-left:7px}.d-patient small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.d-search-controls{display:flex;gap:12px;align-items:center;padding:5px 18px 10px;flex-wrap:wrap}.d-search-controls label{font-size:12px;font-weight:600}.d-search-controls select{min-height:44px;max-width:100%;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);padding:8px 12px;font-size:13px}.d-search-controls select:focus-visible{outline:3px solid #fff;outline-offset:3px}.d-search-answer{padding:12px 14px;border-left:3px solid var(--warn);background:#ffb5a810;margin:3px 18px 12px}.d-search-answer strong{color:var(--warn);font-size:15px}.d-search-answer p{margin:5px 0 0;font-size:13px;color:var(--muted)}.d-search-answer.found{border-color:var(--accent);background:#b0e4d310}.d-search-answer.found strong{color:var(--accent)}.d-available{position:absolute;inset:5px 3px 5px 0;display:flex;align-items:center;justify-content:center;border:1px solid #659887;background:#b0e4d310;color:var(--accent);font-size:13px;border-radius:5px}.d-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:15px}.d-metrics>div{padding:10px;background:var(--panel2);border:1px solid var(--line);border-radius:7px}.d-metrics strong{display:block;font-size:20px;color:var(--accent)}.d-metrics span{display:block;font-size:11px;color:var(--muted);line-height:1.35;margin-top:3px}.d-metric-note{font-size:11px;color:var(--muted);margin:9px 0 0}.d-tradeoff{padding:12px 14px;border-left:3px solid #f3d79e;background:#f3d79e10;font-size:13px}.d-tradeoff strong{color:#f3d79e;font-size:13px}.d-tradeoff p{color:var(--muted);margin:6px 0 0;font-size:12px}.d-investigation{margin:20px 0 0;padding:14px 17px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}.d-investigation strong{font-size:13px;color:var(--accent)}.d-investigation p{font-size:13px;color:var(--muted);margin:5px 0 0;max-width:1080px}
+@media(max-width:1100px){.duration-layout{grid-template-columns:minmax(0,1fr) 290px;gap:17px}.d-reserved{flex-direction:column;gap:1px}.d-metrics{grid-template-columns:repeat(2,1fr)}.examples{grid-template-columns:repeat(3,minmax(0,1fr))}.backlog-context{gap:17px}.backlog-context>strong{font-size:16px}}
+@media(max-width:780px){.duration-layout{grid-template-columns:1fr}.duration-aside{display:flex}.forecast-flow{gap:8px;padding:12px}.forecast-flow strong{font-size:13px}.forecast-flow div>span{font-size:10px}.forecast-flow small{font-size:9px}.flow-arrow{font-size:16px}.backlog-context{align-items:flex-start;flex-direction:column;gap:7px}.backlog-context>strong{white-space:normal}.backlog-context small{display:inline;margin-left:7px}.examples{grid-template-columns:repeat(2,minmax(0,1fr))}.examples .example:first-child{grid-column:1/-1}.d-patient{padding:8px}.d-patient strong span{display:block;margin:3px 0 0}.d-search-controls{align-items:flex-start;flex-direction:column;gap:6px}}
+
+</style>
+</head>
+<body>
+<main>
+<header><div><p class="eyebrow">Infusion scheduling · a fictional learning model</p><h1>Why is time empty while patients wait?</h1><p class="lede">Start with the duration restriction that may leave usable time unfilled. Then explore the staffing and room constraints that still matter.</p></div><div class="scope"><strong>Entirely fictional</strong>All people, schedules, queues and rules are illustrative. This is not a description of any particular clinic or software product.</div></header>
+<section class="backlog-context" aria-label="Why this matters"><strong>Patients waiting. Time unused.<small>A fictional scheduling problem</small></strong><p>The goal is to serve more waiting patients with usable capacity. Moving one appointment later may solve an assignment conflict; it does not by itself recover an empty block or reduce the backlog.</p></section>
+<nav class="examples" aria-label="Choose a scheduling example">
+<button class="example" data-case="duration" aria-pressed="true"><span>1</span><span><strong>Unused long block</strong><small>Empty time, hidden from search.</small></span></button>
+<button class="example" data-case="starts" aria-pressed="false"><span>2</span><span><strong>Same-time starts</strong><small>Enough chairs. Too many starts.</small></span></button>
+<button class="example" data-case="shift" aria-pressed="false"><span>3</span><span><strong>A partial shift</strong><small>The next nurse arrives later.</small></span></button>
+<button class="example" data-case="room" aria-pressed="false"><span>4</span><span><strong>A private room</strong><small>The available chair is unsuitable.</small></span></button>
+<button class="example" data-case="full" aria-pressed="false"><span>5</span><span><strong>No capacity today</strong><small>These resources cannot cover everyone.</small></span></button>
+</nav>
+<section class="guide" aria-label="Guided walkthrough">
+<nav class="steps" aria-label="Walkthrough steps">
+<button class="step" data-step="0" aria-current="step"><span class="step-number">STEP 1</span>The appointments</button>
+<button class="step" data-step="1"><span class="step-number">STEP 2</span>Nurse coverage</button>
+<button class="step" data-step="2"><span class="step-number">STEP 3</span>Why it fails</button>
+<button class="step" data-step="3"><span class="step-number">STEP 4</span>Try one change</button>
+</nav>
+<div class="guide-copy" aria-live="polite" aria-atomic="true"><div><p class="eyebrow" id="guide-label"></p><h2 id="guide-title"></h2><p id="guide-text"></p></div></div>
+</section>
+<div class="toolbar" id="compare-toolbar" hidden><div class="modes" role="group" aria-label="Jump between illustrated and desired behavior"><button class="mode" data-mode="illustrated" aria-pressed="true">Illustrated behavior</button><button class="mode desired" data-mode="desired" aria-pressed="false">Desired behavior</button></div><div class="follow"><span>Follow patient</span><div id="patient-controls" role="group" aria-label="Highlight a patient"></div></div></div>
+<section id="duration-view" aria-label="Unused long block walkthrough">
+<div class="forecast-flow" aria-label="Illustrated forecasting process"><div><small>Illustrated input</small><strong>Historical demand</strong><span>Historical visit durations</span></div><span class="flow-arrow" aria-hidden="true">→</span><div><small>Forecast</small><strong>Plan for a long visit</strong><span>A prediction, not a booking</span></div><span class="flow-arrow" aria-hidden="true">→</span><div><small>Fictional example</small><strong>Reserve 240 minutes</strong><span>8:00–12:00 remains empty</span></div></div>
+<div class="duration-layout">
+<div class="duration-main">
+<section class="board"><div class="board-title"><div><h2>What the department can see</h2><p class="board-sub">One empty opening in the example</p></div><span class="count" id="d-template-count">240 minutes</span></div><div class="timeline-wrap"><div class="timeline" id="d-template"></div></div><p class="board-foot" id="d-template-foot"></p></section>
+<section class="d-queue" aria-label="Small fictional waiting queue"><div class="d-section-heading"><h2>Three fictional patients waiting</h2><span>Fictional people and durations</span></div><div id="d-patients" class="d-patients"></div></section>
+<section class="board d-search" id="d-search-panel"><div class="board-title"><div><h2>What the scheduler can see</h2><p class="board-sub">Simulated appointment search</p></div></div><div class="d-search-controls"><label for="d-search-duration">Requested infusion duration</label><select id="d-search-duration"><option value="120">120 minutes · patient A</option><option value="60">60 minutes · patient B</option></select></div><div class="d-search-answer" id="d-search-answer" aria-live="polite"></div><p class="board-foot" id="d-search-foot"></p></section>
+<section class="board" id="d-coverage-panel"><div class="board-title"><div><h2 id="d-coverage-title">The resources are available in this example</h2><p class="board-sub">One suitable chair · Nurse A can cover one patient at a time</p></div><span class="count good">8:00–12:00</span></div><div class="timeline-wrap"><div class="timeline" id="d-coverage"></div></div><p class="board-foot" id="d-coverage-foot"></p></section>
+<section id="d-metrics" class="d-metrics" aria-label="Effect on the fictional opening and queue" aria-live="polite"></section>
+<p class="d-metric-note" id="d-metric-note">These are potential placements. No real patient is booked or removed from a waiting list.</p>
+</div>
+<aside class="aside duration-aside">
+<section class="intro-card" id="d-explanation" aria-live="polite"></section>
+<section id="d-experiment-panel"><h2 class="experiment-title">What changes the result?</h2><p class="experiment-hint">Each choice starts over. Release options assume a clinic-defined release condition has been met.</p><div class="experiments" id="d-experiments" role="group" aria-label="Try a duration policy change"></div><div class="result" id="d-result" aria-live="polite"></div></section>
+<section class="d-tradeoff" id="d-tradeoff" aria-live="polite"></section>
+<section class="rule-box" id="d-rules"><h3>Assumptions that make the comparison fair</h3><ul><li>One chair and one nurse are available 8:00–12:00. No other bookings use them.</li><li>All three visits are suitable for this chair and nurse. Each keeps its full duration.</li><li>Starts are sequential. No breaks, turnover or other care demands are modeled.</li><li>No waiting 240-minute visit has priority for this particular opening. Actual demand must be checked.</li></ul></section>
+<section class="question" id="d-question-card"><h3>Questions for a scheduling team</h3><p id="d-question"></p><button class="copy" id="d-copy">Copy question</button><span id="d-copy-status" class="sr-only" aria-live="polite"></span></section>
+</aside>
+</div>
+<section class="d-investigation" id="d-investigation"><strong>A scheduling hypothesis to investigate</strong><p>For several days, count how many reserved minutes remained empty despite a suitable waiting request and sufficient staffing. Record why the search hid each opening, whether an exception or release rule existed, and what happened before the day ended.</p></section>
+</section>
+
+<div class="layout" id="assignment-view">
+<section class="boards" aria-label="Schedule illustration">
+<div id="resource-summary" class="working-resources"></div>
+<button id="toggle-department" class="secondary compare-department" aria-expanded="false" aria-controls="department-board" hidden>Show department schedule</button>
+<section class="board" id="department-board" aria-labelledby="department-title"><div class="board-title"><div><h2 id="department-title">Department schedule</h2><p class="board-sub" id="department-sub"></p></div><span class="count" id="department-count"></span></div><div class="timeline-wrap"><div class="timeline" id="department"></div></div><p class="board-foot" id="department-foot"></p></section>
+<section class="board" id="nurse-board" aria-labelledby="nurse-title" hidden><div class="board-title"><div><h2 id="nurse-title">Individual nurse availability</h2><p class="board-sub" id="nurse-sub"></p></div><span class="count" id="nurse-count"></span></div><div class="timeline-wrap"><div class="timeline" id="nurses"></div></div><p class="board-foot" id="nurse-foot"></p></section>
+<div class="legend" id="legend"><span><i class="swatch"></i>Same color = same patient</span><span><i class="swatch dashed"></i>Unassigned / unconfirmed request</span><span><i class="swatch hatched"></i>Proposed change</span></div>
+<section class="selection" id="selection" hidden aria-live="polite"></section>
+<div id="proof" class="proof" hidden></div>
+<section class="question" id="question-card" hidden><h3>Questions for a scheduling team</h3><p id="question"></p><button class="copy" id="copy">Copy question</button><span id="copy-status" class="sr-only" aria-live="polite"></span></section>
+</section>
+<aside class="aside">
+<section id="intro" class="intro-card"></section>
+<section id="experiment-panel" hidden><h2 class="experiment-title">What would you try?</h2><p class="experiment-hint">Choose one. Every choice starts from the original example, so changes never stack.</p><div class="experiments" id="experiments" role="group" aria-label="Try one change"></div><div id="result" class="result" aria-live="polite" aria-atomic="true"></div></section>
+<section id="diagnosis" class="diagnosis" hidden aria-live="polite"></section>
+<section class="rule-box"><h3 id="rules-heading">Rules in this example</h3><ul id="rules"></ul></section>
+</aside>
+</div>
+<footer><details><summary>About this fictional model</summary><p>All people, appointments, schedules, queues, staffing levels and rules in this demonstration are fictional. Nurse A, Nurse B and Nurse C are role labels. This is a general educational example, not a description or evaluation of any hospital, person or software product.</p><p>“Illustrated behavior” shows the starting restrictions. “Desired behavior” explores alternatives under the stated assumptions. Results are proposals, not confirmed appointments, operational recommendations or evidence about a real system.</p><p>The long-block example uses a hypothetical exact-duration rule. It assumes a suitable chair and nurse are available throughout the block, no waiting long visit has priority for that opening, and an appropriate release condition can be met. Releasing time for shorter visits removes the continuous four-hour opportunity. Queue and usage counters describe this small fictional example only.</p><p>Each patient stays with one nurse throughout the visit. Capacity releases at the end. Breaks, turnover, treatment complexity, staff skills, other bookings and patient preferences are not modeled. The one-start-at-a-time rule is an illustrative assumption, not a clinical recommendation.</p><p>The assignment examples keep existing bookings fixed except for the explicit room reassignment. A later appointment may resolve one conflict without increasing total throughput. Any real implementation would need its own requirements and validation.</p><p>This self-contained page runs in the browser. It has no patient-data input, analytics, external scripts, network requests or clinical-system connections. Copy buttons write the displayed fictional discussion question to the clipboard.</p></details></footer>
+</main>
+<div class="guide-nav" aria-label="Continue walkthrough"><div class="nav-inner"><div class="nav-position" id="nav-position"></div><button class="back" id="back" disabled>Back</button><button class="next" id="next">Next: nurse coverage →</button></div></div>
+<script id="demo-model">/* Fictional teaching model. No production system behavior or integration is implemented. */
+const CASES = {
+  starts: {
+    title: 'Same-time starts', focus: 'C', physicalChairs: 6,
+    nurses: [{id:'Nurse A',start:0,end:240,cap:3},{id:'Nurse B',start:0,end:240,cap:3}],
+    patients: [
+      {id:'A',start:0,end:120,row:0,nurse:'Nurse A',lane:0},
+      {id:'B',start:0,end:60,row:1,nurse:'Nurse B',lane:0},
+      {id:'C',start:0,end:90,row:2,nurse:null,lane:0},
+      {id:'D',start:120,end:210,row:0,nurse:'Nurse B',lane:0}
+    ],
+    deptRows:['Slot 1','Slot 2','Slot 3'],
+    rules:['Nurse A and Nurse B work 8:00–12:00.','Each nurse can cover up to three occupied chairs.','A nurse can start only one patient at a given time.'],
+    question:'Does template generation check simultaneous starts against the nurses actually available, using the same start rule as staff assignment? Which stage allowed the conflict?',
+    desiredExperiment:'later',
+    experiments:[
+      {id:'baseline',label:'Keep original conditions',description:'Three patients start at 8:00; two nurses are available.'},
+      {id:'chair',label:'Add one physical chair',description:'Keep both nurses and their coverage limits unchanged.'},
+      {id:'nurse',label:'Add a nurse',description:'Nurse C works 8:00–12:00 and can cover one patient. Physical chairs stay unchanged.'},
+      {id:'later',label:'Offer C 8:30',description:'Keep C’s 90-minute duration and all other appointment times.'}
+    ]
+  },
+  shift: {
+    title:'A partial shift',focus:'C',physicalChairs:4,
+    nurses:[{id:'Nurse A',start:0,end:240,cap:2},{id:'Nurse B',start:120,end:240,cap:2}],
+    patients:[
+      {id:'A',start:0,end:120,row:0,nurse:'Nurse A',lane:0},
+      {id:'B',start:30,end:150,row:1,nurse:'Nurse A',lane:1},
+      {id:'C',start:60,end:150,row:2,nurse:null,lane:0},
+      {id:'D',start:150,end:240,row:0,nurse:'Nurse A',lane:0}
+    ],
+    deptRows:['Slot 1','Slot 2','Slot 3'],
+    rules:['Nurse A works 8:00–12:00; Nurse B works 10:00–12:00.','Each nurse can cover up to two occupied chairs.','One start per nurse at a time; one nurse covers the entire visit.'],
+    question:'How do actual date-specific nurse hours carry from template generation through booking and assignment? What coverage exists throughout the failed appointment?',
+    desiredExperiment:'later',
+    experiments:[
+      {id:'baseline',label:'Keep original conditions',description:'C starts at 9:00; Nurse B arrives at 10:00.'},
+      {id:'chair',label:'Add one physical chair',description:'Keep actual nurse hours and coverage limits unchanged.'},
+      {id:'earlier',label:'Have Nurse B arrive at 9:00',description:'Propose one extra hour of actual staffing; appointment times stay unchanged.'},
+      {id:'later',label:'Offer C 10:00',description:'Keep the actual shifts and C’s 90-minute duration.'}
+    ]
+  },
+  room: {
+    title:'A private room',focus:'B',physicalChairs:2,
+    nurses:[{id:'Nurse A',start:0,end:240,cap:1,room:'private'},{id:'Nurse B',start:0,end:240,cap:1,room:'ordinary'}],
+    patients:[
+      {id:'A',start:0,end:120,row:0,nurse:'Nurse A',lane:0,needsPrivate:false},
+      {id:'B',start:30,end:120,row:1,nurse:null,lane:0,needsPrivate:true,request:true}
+    ],
+    deptRows:['Private room','Ordinary chair'],
+    rules:['One private room and one ordinary chair, each covered by a nurse.','B requires a private room. A can use either space.','Both nurses work 8:00–12:00 and cover one patient at a time.'],
+    question:'Can scheduling propose moving a patient who does not require privacy to an available ordinary chair, while preserving the other patient’s private-room requirement? If not, what supported workflow handles this?',
+    desiredExperiment:'rearrange',
+    experiments:[
+      {id:'baseline',label:'Keep original conditions',description:'A occupies the private room; B still needs privacy.'},
+      {id:'chair',label:'Add an ordinary chair',description:'Add no private room and no extra nurse coverage.'},
+      {id:'rearrange',label:'Move A to the ordinary chair',description:'Keep all times and B’s private-room requirement unchanged.'},
+      {id:'later',label:'Offer B 10:00',description:'Keep A in place; offer B a 90-minute visit after A leaves.'}
+    ]
+  },
+  full: {
+    title:'No capacity today',focus:'C',physicalChairs:3,
+    nurses:[{id:'Nurse A',start:0,end:240,cap:1},{id:'Nurse B',start:0,end:240,cap:1}],
+    patients:[
+      {id:'A',start:0,end:240,row:0,nurse:'Nurse A',lane:0},
+      {id:'B',start:0,end:240,row:1,nurse:'Nurse B',lane:0},
+      {id:'C',start:60,end:150,row:2,nurse:null,lane:0}
+    ],
+    deptRows:['Slot 1','Slot 2','Slot 3'],
+    rules:['Nurse A and Nurse B work 8:00–12:00, with capacity for one patient each.','A and B each occupy their nurse for the entire 8:00–12:00 window.','C needs 90 continuous minutes with one nurse; A and B remain fixed.'],
+    question:'If no placement is feasible with the existing appointments, staffing, and rules held fixed, can the system explain the limiting resource before confirming another booking?',
+    desiredExperiment:'baseline',
+    experiments:[
+      {id:'baseline',label:'Keep original conditions',description:'Both nurses are full for the whole window.'},
+      {id:'chair',label:'Add one physical chair',description:'Keep both nurses’ one-patient coverage limits unchanged.'},
+      {id:'later',label:'Try C at 10:00',description:'Move only C, preserving its 90-minute duration.'},
+      {id:'latest',label:'Try C at 10:30',description:'Try the latest 90-minute visit that ends by 12:00.'}
+    ]
+  }
+};
+
+function clockTime(minutes){return (8+Math.floor(minutes/60))+':'+String(minutes%60).padStart(2,'0');}
+function overlaps(a,b){return a.start<b.end&&b.start<a.end;}
+function idsText(patients){return patients.map(p=>p.id).join(', ');}
+
+// Every nurse is assessed against the candidate's complete interval, not only its start.
+function evaluateCandidate(candidate,nurses,patients,physicalChairs){
+  const fixed=patients.filter(p=>p.id!==candidate.id&&p.nurse);
+  return nurses.map(n=>{
+    const reasons=[];
+    const add=(code,message)=>reasons.push({code,message});
+    if(candidate.start<n.start||candidate.end>n.end){
+      add('outside_shift',n.id+' works '+clockTime(n.start)+'–'+clockTime(n.end)+', which does not cover the full '+clockTime(candidate.start)+'–'+clockTime(candidate.end)+' visit.');
+    }
+    if(candidate.needsPrivate&&n.room!=='private')add('private_room_required',n.id+' covers an ordinary space; '+candidate.id+' requires a private room.');
+    const assigned=fixed.filter(p=>p.nurse===n.id);
+    const sameStart=assigned.filter(p=>p.start===candidate.start);
+    if(sameStart.length)add('simultaneous_start',n.id+' already starts '+idsText(sameStart)+' at '+clockTime(candidate.start)+'; one nurse can start only one patient at that time.');
+    const times=[...new Set([candidate.start,...assigned.filter(p=>p.start>candidate.start&&p.start<candidate.end).map(p=>p.start)])].sort((a,b)=>a-b);
+    for(const t of times){
+      const occupied=assigned.filter(p=>p.start<=t&&p.end>t);
+      if(occupied.length>=n.cap){
+        const until=Math.min(candidate.end,...occupied.map(p=>p.end),...assigned.filter(p=>p.start>t).map(p=>p.start));
+        add('nurse_capacity',n.id+' already covers '+idsText(occupied)+' at '+clockTime(t)+'–'+clockTime(until)+' ('+occupied.length+' of '+n.cap+' covered chairs occupied).');
+        break;
+      }
+    }
+    const totalTimes=[...new Set([candidate.start,...fixed.filter(p=>p.start>candidate.start&&p.start<candidate.end).map(p=>p.start)])];
+    for(const t of totalTimes){
+      const occupied=fixed.filter(p=>p.start<=t&&p.end>t);
+      if(occupied.length>=physicalChairs){add('physical_chairs',idsText(occupied)+' already occupy all '+physicalChairs+' physical chairs at '+clockTime(t)+'.');break;}
+    }
+    return {nurse:n.id,eligible:reasons.length===0,reasons};
+  });
+}
+
+// Reuses a chair exactly at the previous appointment's end. Nurse assignments stay fixed.
+function allocateChairLanes(patients,nurses){
+  for(const n of nurses){
+    const laneEnds=[];
+    const assigned=patients.filter(p=>p.nurse===n.id).sort((a,b)=>a.start-b.start||a.id.localeCompare(b.id));
+    for(const p of assigned){let lane=laneEnds.findIndex(end=>end<=p.start);if(lane<0)lane=laneEnds.length;p.lane=lane;laneEnds[lane]=p.end;}
+  }
+  return patients;
+}
+
+function feasibleCandidateStarts(candidate,nurses,patients,physicalChairs,windowStart=0,windowEnd=240){
+  const duration=candidate.end-candidate.start,starts=[];
+  for(let start=windowStart;start+duration<=windowEnd;start++){
+    const trial={...candidate,start,end:start+duration,nurse:null};
+    const eligible=evaluateCandidate(trial,nurses,patients,physicalChairs).filter(d=>d.eligible);
+    if(eligible.length)starts.push({start,nurses:eligible.map(d=>d.nurse)});
+  }
+  return starts;
+}
+
+function buildScenario(key,experimentId='baseline'){
+  const c=CASES[key];if(!c)throw new Error('Unknown scenario: '+key);
+  const experiment=c.experiments.find(e=>e.id===experimentId);if(!experiment)throw new Error('Unknown experiment: '+experimentId);
+  const nurses=c.nurses.map(n=>({...n})),patients=c.patients.map(p=>({...p}));
+  let physicalChairs=c.physicalChairs,changeTitle='Original conditions',changeText=experiment.description,lesson='Department rows alone do not establish individual nurse coverage.';
+  const candidate=patients.find(p=>p.id===c.focus),duration=candidate.end-candidate.start;
+  if(experimentId==='chair'){
+    physicalChairs++;
+    changeTitle=key==='room'?'One additional ordinary chair':'One additional physical chair';
+    changeText='Physical chairs: '+c.physicalChairs+' → '+physicalChairs+'. Nurse hours and coverage limits stay unchanged. No nurse coverage is added.';
+    lesson=key==='room'?'An ordinary chair cannot meet a private-room requirement.':'An extra physical chair does not add a nurse or raise a nurse’s coverage limit.';
+  }
+  if(key==='starts'&&experimentId==='nurse'){
+    nurses.push({id:'Nurse C',start:0,end:240,cap:1});
+    changeTitle='Propose another nurse';changeText='Add Nurse C, working 8:00–12:00 with capacity for one patient. Keep all appointment times and all six physical chairs. Actual staffing would need clinic confirmation.';
+    lesson='Three simultaneous starts require three available nurses under this rule; the existing chairs are sufficient.';
+  }
+  if(key==='shift'&&experimentId==='earlier'){
+    nurses.find(n=>n.id==='Nurse B').start=60;
+    changeTitle='Propose an earlier shift';changeText='Nurse B’s start: 10:00 → 9:00. Patient times and coverage limits stay unchanged. This requires a real staffing change and clinic confirmation.';
+    lesson='Coverage appears only if the nurse is actually present; changing a screen alone does not create capacity.';
+  }
+  if(key==='room'&&experimentId==='rearrange'){
+    const a=patients.find(p=>p.id==='A');a.nurse='Nurse B';a.row=1;
+    changeTitle='Propose a room and nurse reassignment';changeText='Move A to Nurse B’s ordinary chair at the same 8:00–10:00 time. Preserve B’s private-room requirement. Whether a production system can find this arrangement requires separate verification.';
+    lesson='A may use either room, so this particular rearrangement frees the private room without changing anyone’s time.';
+  }
+  if(experimentId==='later'||experimentId==='latest'){
+    candidate.start=key==='starts'?30:experimentId==='latest'?150:120;candidate.end=candidate.start+duration;
+    const original=c.patients.find(p=>p.id===c.focus);
+    changeTitle='Propose a different appointment time';
+    changeText=candidate.id+': '+clockTime(original.start)+'–'+clockTime(original.end)+' → '+clockTime(candidate.start)+'–'+clockTime(candidate.end)+'. The '+duration+'-minute duration is unchanged. Patient and clinic confirmation would be needed.';
+    lesson=key==='full'?'A later start cannot help while both nurses remain full through 12:00.':key==='room'?'B can use the private room after A leaves, if the later time is acceptable.':'A different time can fit the existing coverage, if the later appointment is acceptable.';
+  }
+  const diagnostics=evaluateCandidate(candidate,nurses,patients,physicalChairs);
+  const firstEligible=diagnostics.find(d=>d.eligible);
+  if(firstEligible){candidate.nurse=firstEligible.nurse;if(candidate.request)candidate.request=false;if(key==='room')candidate.row=nurses.find(n=>n.id===candidate.nurse).room==='private'?0:1;}
+  allocateChairLanes(patients,nurses);
+  for(const p of patients){const original=c.patients.find(o=>o.id===p.id);p.changed=['start','end','row','nurse','request'].some(field=>p[field]!==original[field]);}
+  const assignedCount=patients.filter(p=>p.nurse).length;
+  const snapshot={key,experimentId,patients,nurses,physicalChairs,changeTitle,changeText,lesson,title:c.title,status:firstEligible?'fit':'blocked',diagnostics,candidateId:c.focus,candidate,assignedCount,totalCount:patients.length};
+  if(key==='full'){
+    const feasibleStarts=feasibleCandidateStarts(candidate,nurses,patients,physicalChairs);
+    snapshot.noFitProof={windowStart:0,windowEnd:240,duration,examinedStartCount:241-duration,feasibleStarts,fixedPatientIds:['A','B'],message:'With A and B fixed at 8:00–12:00 and each nurse limited to one patient, both nurses are occupied throughout the entire window. C cannot fit at any start within that window. This does not rule out other changes to staffing, hours, or existing appointments.'};
+    if(experimentId==='baseline')lesson=snapshot.lesson='A useful result can be a clear explanation that the appointment cannot be confirmed under these conditions.';
+  }
+  return snapshot;
+}
+
+function validateSnapshot(snapshot){
+  const issues=[],{patients,nurses,physicalChairs}=snapshot;
+  const add=(code,message)=>issues.push({code,message});
+  if(!Number.isInteger(physicalChairs)||physicalChairs<1)add('invalid_physical_chairs','Physical chair count must be a positive integer.');
+  if(new Set(nurses.map(n=>n.id)).size!==nurses.length)add('duplicate_nurse','Nurse identifiers must be unique.');
+  if(new Set(patients.map(p=>p.id)).size!==patients.length)add('duplicate_patient','Patient identifiers must be unique.');
+  for(const n of nurses){if(!Number.isFinite(n.start)||!Number.isFinite(n.end)||n.end<=n.start||!Number.isInteger(n.cap)||n.cap<1)add('invalid_nurse',n.id+': invalid shift or capacity.');}
+  for(const p of patients){
+    if(!Number.isFinite(p.start)||!Number.isFinite(p.end)||p.end<=p.start)add('invalid_duration',p.id+': visit must have positive finite duration.');
+    if(!p.nurse)continue;
+    const n=nurses.find(n=>n.id===p.nurse);if(!n){add('unknown_nurse',p.id+': assigned nurse does not exist.');continue;}
+    if(p.start<n.start||p.end>n.end)add('outside_shift',p.id+': visit exceeds '+n.id+'’s shift.');
+    if(p.needsPrivate&&n.room!=='private')add('private_room_required',p.id+': private room is required.');
+    if(!Number.isInteger(p.lane)||p.lane<0||p.lane>=n.cap)add('invalid_lane',p.id+': chair lane exceeds nurse coverage.');
+  }
+  for(const n of nurses){
+    const assigned=patients.filter(p=>p.nurse===n.id);
+    for(let i=0;i<assigned.length;i++){
+      const p=assigned[i];
+      if(assigned.filter(q=>q.start<=p.start&&q.end>p.start).length>n.cap)add('nurse_capacity',n.id+': concurrent coverage exceeds capacity at '+clockTime(p.start)+'.');
+      for(const q of assigned.slice(i+1)){if(q.start===p.start)add('simultaneous_start',n.id+': '+p.id+' and '+q.id+' start together.');if(p.lane===q.lane&&overlaps(p,q))add('chair_overlap',n.id+': '+p.id+' and '+q.id+' overlap in one chair.');}
+    }
+  }
+  const assigned=patients.filter(p=>p.nurse);
+  for(const p of assigned){if(assigned.filter(q=>q.start<=p.start&&q.end>p.start).length>physicalChairs)add('physical_chairs','Concurrent assigned patients exceed physical chairs at '+clockTime(p.start)+'.');}
+  return {valid:issues.length===0,issues};
+}
+</script>
+<script id="demo-duration-model">/* Fictional duration-reservation example. Requires the constraint helpers in model-v2.js. */
+const DURATION_CASE={
+  title:'Unused long block',focus:'A',desiredExperiment:'release',
+  question:'When a 240-minute opening is hidden from a 60- or 120-minute search, which duration rule excludes it? Would a matching 240-minute visit be offered, and what clinic-defined condition releases unused long-visit capacity for shorter visits?',
+  experiments:[
+    {id:'baseline',label:'Keep the long reservation',description:'Illustrate an exact-duration reservation: the shorter request is hidden even when its resources fit.'},
+    {id:'later',label:'Search one hour later',description:'Change the requested start, while keeping the same duration restriction.'},
+    {id:'release',label:'Assume release is permitted',description:'Assume an appropriate clinic-defined release condition has been met; propose the selected shorter visit.'},
+    {id:'fill',label:'Propose all three short visits',description:'Under the same release assumption, check A, B, and C sequentially, starting with the selected request.'}
+  ]
+};
+
+function buildDurationScenario(experimentId='baseline',searchMinutes=120,options={}){
+  if(!DURATION_CASE.experiments.some(e=>e.id===experimentId))throw new Error('Unknown duration experiment: '+experimentId);
+  if(searchMinutes!==60&&searchMinutes!==120)throw new Error('Duration search must be 60 or 120 minutes.');
+  const base=[
+    {id:'A',start:0,end:120,row:0,nurse:null,lane:0,needsPrivate:false,request:true},
+    {id:'B',start:0,end:60,row:0,nurse:null,lane:0,needsPrivate:false,request:true},
+    {id:'C',start:0,end:60,row:0,nurse:null,lane:0,needsPrivate:false,request:true}
+  ];
+  const patients=base.map(p=>({...p,proposed:false,changed:false}));
+  const nurses=(options.nurses??[{id:'Nurse A',start:0,end:240,cap:1,room:'ordinary'}]).map(n=>({...n}));
+  const physicalChairs=options.physicalChairs??1;
+  if(!Array.isArray(options.nurses??nurses)||!Number.isInteger(physicalChairs)||physicalChairs<0)throw new Error('Invalid duration-example resources.');
+  for(const n of nurses){if(!Number.isFinite(n.start)||!Number.isFinite(n.end)||n.end<=n.start||!Number.isInteger(n.cap)||n.cap<1)throw new Error('Invalid duration-example nurse shift or capacity.');}
+  const candidateId=searchMinutes===120?'A':'B';
+  const candidate=patients.find(p=>p.id===candidateId);
+  if(experimentId==='later'){candidate.start=60;candidate.end=60+searchMinutes;candidate.changed=true;}
+  const diagnostics=evaluateCandidate(candidate,nurses,patients,physicalChairs);
+  const resourceFits=diagnostics.some(d=>d.eligible);
+  const reservationAllows=experimentId==='release'||experimentId==='fill';
+  const offered=reservationAllows&&resourceFits;
+  const placementChecks=[];
+
+  // Passing a duration policy never bypasses resource checks. All placements remain proposals.
+  if(offered){
+    const order=experimentId==='fill'?[candidate,...patients.filter(p=>p.id!==candidateId)]:[candidate];
+    let cursor=0;
+    for(const p of order){
+      const original=base.find(b=>b.id===p.id),duration=original.end-original.start;
+      p.start=cursor;p.end=cursor+duration;
+      const checks=evaluateCandidate(p,nurses,patients,physicalChairs);
+      const eligible=checks.find(d=>d.eligible);
+      const withinBlock=p.start>=0&&p.end<=240;
+      placementChecks.push({patient:p.id,start:p.start,end:p.end,eligible:!!eligible&&withinBlock,diagnostics:checks});
+      if(eligible&&withinBlock){p.nurse=eligible.nurse;p.request=false;p.proposed=true;}
+      cursor=p.end;
+    }
+  }
+  allocateChairLanes(patients,nurses);
+  for(const p of patients){const original=base.find(b=>b.id===p.id);p.changed=p.proposed||p.start!==original.start||p.end!==original.end;}
+  const assigned=patients.filter(p=>p.nurse),assignedCount=assigned.length;
+  const usedMinutes=assigned.reduce((sum,p)=>sum+p.end-p.start,0);
+  const unusedMinutes=240-usedMinutes;
+  const remainingWaiting=patients.length-assignedCount;
+  const status=!reservationAllows?'hidden':offered?'proposal':'resource_blocked';
+  let changeTitle='Keep the 240-minute reservation';
+  let changeText='This illustrative duration rule accepts only a 240-minute visit in the block. A '+searchMinutes+'-minute request is not offered. A production clinic would need to define its own release conditions and cutoff.';
+  let lesson=resourceFits?'The shorter visit fits the listed resources, but the modeled reservation rule still hides the opening.':'The modeled reservation hides this request, and the listed resources would also prevent it.';
+  if(experimentId==='later'){
+    changeTitle='Search at 9:00 instead of 8:00';
+    changeText='The '+searchMinutes+'-minute request moves to '+clockTime(candidate.start)+'–'+clockTime(candidate.end)+'. The same 240-minute duration restriction remains in force in this example.';
+    lesson='Moving the search time later does not release this reserved long block.';
+  }
+  if(reservationAllows){
+    changeTitle=experimentId==='release'?'Assume the release condition is met':'Assume release, then check each shorter visit';
+    changeText='For this fictional proposal, assume the clinic permits shorter visits after its release condition is met. No cutoff or release policy is asserted for a production system. '+(experimentId==='release'?'Only the selected request is proposed.':'Check the selected request first, then the other requests in A, B, C order.');
+    if(!offered)lesson='Releasing the duration restriction is insufficient: the selected request fails the resource checks and remains waiting.';
+    else if(experimentId==='fill'&&assignedCount<3)lesson='Only '+assignedCount+' of 3 proposed visits pass the resource checks. '+usedMinutes+' minutes would be used and '+unusedMinutes+' remain unused; unplaced requests stay waiting.';
+    else lesson=assignedCount===3?'All three proposed visits fit the listed resources, using the full 240 minutes. That removes the continuous four-hour opportunity for a long visit.':searchMinutes+' minutes would be used and '+unusedMinutes+' remain unused. The original continuous four-hour opportunity is no longer available.';
+  }
+  const snapshot={
+    key:'duration',experimentId,searchMinutes,patients,nurses,physicalChairs,candidateId,candidate,diagnostics,
+    resourceFits,reservationAllows,offered,status,assignedCount,totalCount:3,usedMinutes,unusedMinutes,
+    remainingWaiting,longWindowPreserved:assignedCount===0,changeTitle,changeText,lesson,
+    block:{start:0,end:240,reservedMinutes:240},placementChecks
+  };
+  // Zero resources may be a useful blocked test case. Validate every accepted assignment.
+  if(assignedCount){const validation=validateSnapshot(snapshot);if(!validation.valid)throw new Error('Invalid duration proposal: '+validation.issues.map(i=>i.message).join('; '));}
+  return snapshot;
+}
+</script>
+<script id="demo-duration-view">const DURATION_STEPS=['Forecast & queue','Scheduler search','Unused capacity','Try release policy'];
+const DURATION_TITLES=['A forecast reserves time. Patients are still waiting.','The opening exists—but shorter searches do not show it.','An eligibility restriction leaves staffed time unused.','Could a release rule recover this opening?'];
+const DURATION_TEXTS=[
+ 'Imagine a system that uses historical visit durations to plan its template. Here it reserves 8:00–12:00 for a 240-minute visit, but nobody has booked that opening.',
+ 'Choose a 60- or 120-minute request. In this model of the illustrated restriction, a shorter duration does not qualify for the reserved block—even though it fits inside four hours.',
+ 'This example deliberately supplies a suitable chair and nurse for the full window. The restriction is what the scheduler may book, not a missing employee. Moving the short request later within this block does not change its duration eligibility.',
+ 'Compare holding the reservation with a proposed, clinic-defined release policy. A shorter visit must still fit the actual resources. Filling an opening with short visits also removes that continuous four-hour opportunity.'
+];
+
+function durationSchedule(patients){
+ return axis()+row('<strong>Nurse A</strong><small>One covered chair</small>',patients.length?patients.map(p=>block({...p,lane:0,changed:true})).join(''):'<div class="d-available">Available · no patient booked</div>',55);
+}
+function renderDuration(){
+ const s=buildDurationScenario(state.step===3?state.experiment:'baseline',state.searchMinutes);
+ state.patient=s.candidateId;
+ document.querySelectorAll('[data-case]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.case==='duration')));
+ document.querySelectorAll('[data-step]').forEach((b,i)=>{b.innerHTML='<span class="step-number">STEP '+(i+1)+'</span>'+DURATION_STEPS[i];if(i===state.step)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.mode==='desired')===(state.step===3))));
+ $('guide-label').textContent='Step '+(state.step+1)+' of 4 · '+DURATION_CASE.title;
+ $('guide-title').textContent=DURATION_TITLES[state.step];$('guide-text').textContent=DURATION_TEXTS[state.step];
+ $('compare-toolbar').hidden=state.step<2;
+ $('d-template').innerHTML=axis()+row('<strong>Reserved block</strong><small>Department plan</small>','<div class="d-reserved"><strong>240-minute visit</strong><span>Reserved opening · no booking</span></div>',64);
+ $('d-template-foot').textContent=state.step===3&&s.assignedCount?'Original template shown for comparison. The proposal below reuses this same opening.':'The reservation describes the intended visit length. It does not mean a patient is booked.';
+ $('d-patients').innerHTML=s.patients.map(p=>'<div class="d-patient '+(p.id===s.candidateId?'chosen':'')+'" style="--patient:'+patientColor(p.id)+'"><strong>'+esc(p.id)+' <span>'+(p.end-p.start)+' min</span></strong><small>'+(p.nurse?'Proposed '+clock(p.start)+'–'+clock(p.end):'Still waiting')+'</small></div>').join('');
+ $('d-search-panel').hidden=state.step===0;$('d-search-duration').value=String(state.searchMinutes);
+ const isHidden=s.status==='hidden';
+ $('d-search-answer').className='d-search-answer '+(s.offered?'found':'');
+ $('d-search-answer').innerHTML=s.offered?'<strong>Opening offered in this proposal</strong><p>'+s.candidateId+': '+clock(s.candidate.start)+'–'+clock(s.candidate.end)+' · '+state.searchMinutes+' minutes. Duration policy and resource checks both allow it.</p>':'<strong>No eligible result from this block</strong><p>'+(isHidden?'The template reserves a 240-minute visit. This '+state.searchMinutes+'-minute search does not qualify, so the opening stays hidden.':'The duration policy allows this request, but the available resources cannot cover it.')+'</p>';
+ $('d-search-foot').textContent=isHidden?'Not shown by this search does not necessarily mean every chair or nurse is busy.':'A possible placement is shown, not a confirmed appointment. Support for this behavior in a production system requires separate verification.';
+ const assigned=s.patients.filter(p=>p.nurse);
+ $('d-coverage-panel').hidden=state.step<2;
+ $('d-coverage-title').textContent=assigned.length?'Proposed use of the same chair and nurse':'The resources are available in this example';
+ $('d-coverage').innerHTML=durationSchedule(assigned);
+ $('d-coverage-foot').textContent=assigned.length?'Each full visit fits Nurse A’s shift. Starts do not overlap. Real requirements and patient availability still need confirmation.':'Nurse A is present for the full four hours. A suitable chair is empty. Duration eligibility still hides the opening from this shorter search.';
+ $('d-metrics').hidden=state.step<2;$('d-metric-note').hidden=state.step<2;
+ $('d-metrics').innerHTML='<div><strong>'+s.usedMinutes+' / 240</strong><span>minutes in proposed visits</span></div><div><strong>'+s.unusedMinutes+' min</strong><span>unused in this opening</span></div><div><strong>'+s.assignedCount+' / 3</strong><span>fictional patients with a proposal</span></div><div><strong>'+s.remainingWaiting+'</strong><span>would remain from this small queue</span></div>';
+ $('d-explanation').hidden=state.step===3;
+ const explanations=[
+ ['The forecast is not today’s waiting list.','Historical demand can justify protecting space for long infusions. The example asks what happens when that protected space stays empty while shorter visits wait.'],
+ ['Visible space is not the same as bookable space.','A 120-minute visit fits within 240 minutes. But a duration eligibility rule can still exclude it from the scheduler’s results. Try 60 minutes too.'],
+ ['Moving the patient later misses this cause.','If the same duration rule applies, a shorter request remains hidden even when the nurse is present. We need to examine when unused protected time can become bookable.']
+ ];
+ if(state.step<3)$('d-explanation').innerHTML='<h2>'+explanations[state.step][0]+'</h2><p>'+explanations[state.step][1]+'</p>';
+ $('d-experiment-panel').hidden=state.step!==3;
+ $('d-experiments').innerHTML=DURATION_CASE.experiments.map(e=>'<button class="experiment" data-duration-experiment="'+esc(e.id)+'" aria-pressed="'+(state.experiment===e.id)+'">'+esc(e.label)+'</button>').join('');
+ const resultTitle=s.assignedCount?(s.assignedCount===3?'All three short visits fit this opening.':'One shorter visit can use this opening.'):'The opening remains unused.';
+ $('d-result').className='result '+(s.assignedCount?'fit':'');
+ $('d-result').innerHTML='<h3>'+resultTitle+'</h3><p>'+esc(s.lesson)+'</p><p class="change-note"><strong>'+esc(s.changeTitle)+'</strong><br>'+esc(s.changeText)+'</p>';
+ $('d-tradeoff').hidden=state.step<2;
+ $('d-tradeoff').innerHTML='<strong>'+(s.longWindowPreserved?'The full 240-minute opportunity is preserved.':'The full 240-minute opportunity is no longer available.')+'</strong><p>'+(s.longWindowPreserved?'Holding long-visit capacity may be intentional. The question is when to release it if no suitable long visit needs this opening.':'Serving shorter visits uses existing time, but a four-hour visit could no longer fit here. A release policy must account for waiting long visits and clinic priorities.')+'</p>';
+ $('d-question-card').hidden=state.step<2;$('d-question').textContent=DURATION_CASE.question;
+ $('d-investigation').hidden=state.step<2;
+ $('nav-position').innerHTML='Example 1 of '+KEYS.length+'<strong>Step '+(state.step+1)+' · '+DURATION_STEPS[state.step]+'</strong>';
+ $('back').disabled=state.step===0;$('next').textContent=['Next: scheduler search →','Next: unused capacity →','Next: try a release policy →','Next: staffing examples →'][state.step];
+ const checked=validateSnapshot(s);if(!checked.valid)throw Error(checked.issues.map(i=>i.message).join('; '));
+}
+document.getElementById('d-search-duration').addEventListener('change',e=>{state.searchMinutes=Number(e.target.value);render();});
+document.getElementById('d-experiments').addEventListener('click',e=>{const b=e.target.closest('[data-duration-experiment]');if(!b)return;state.experiment=b.dataset.durationExperiment;render();document.querySelector('[data-duration-experiment="'+state.experiment+'"]').focus();});
+document.getElementById('d-copy').addEventListener('click',async()=>{const text='In a fictional infusion scheduling example, patients wait while reserved time remains unused. '+DURATION_CASE.question+' We want to measure unused reserved minutes with suitable shorter requests and staffing, and compare protecting long visits with a supported release policy. The demo is fictional, not evidence of the actual configuration.';try{await navigator.clipboard.writeText(text);document.getElementById('d-copy-status').textContent='Question copied to clipboard.';document.getElementById('d-copy').textContent='Copied';}catch{document.getElementById('d-copy-status').textContent='Copy was unavailable. Select and copy the question above.';}});
+</script>
+<script id="demo-view">
+const state={scenario:'duration',step:0,experiment:'baseline',patient:'A',showDepartment:false,searchMinutes:120};
+const $=id=>document.getElementById(id);
+const KEYS=['duration','starts','shift','room','full'];
+const caseInfo=key=>key==='duration'?DURATION_CASE:CASES[key];
+const STEP_NAMES=['The appointments','Nurse coverage','Why it fails','Try one change'];
+const UI={
+ starts:{titles:['Three patients share an 8:00 start.','Two nurses are available at 8:00.','C fits a row, but neither nurse can start C.','Which change removes the conflict?'],texts:['Start here: follow the pink C block. A, B, and C fit separate department rows at 8:00. Use Next below to see the nurses behind those bookings.','Nurse A and Nurse B each have three chairs. Empty chairs are only one part of capacity: each nurse can start just one patient at a given time.','Keep every appointment at its original time. Nurse A is starting A, and Nurse B is starting B. Read the reason for each nurse before trying a fix.','Try an extra chair, another nurse, or a later start. Watch the assignment and its explanation update together.'],introTitle:'A booking is a place in the department grid.',introText:'The rows keep appointments from overlapping in the same scheduling slot. They do not identify the nurse who will start each patient.',focus:'C needs 90 minutes, beginning at 8:00.',coverage:'At 8:00, there are six covered chairs but only two nurses available to start visits.'},
+ shift:{titles:['C is booked for 9:00.','The second nurse arrives at 10:00.','At 9:00, one nurse is full and one is off shift.','Can the requested time get real coverage?'],texts:['Follow C, the 90-minute visit from 9:00 to 10:30. Its department row is open. Use Next to check who is actually working.','Nurse A works the full morning. Nurse B works only 10:00–12:00. The hatched area is time when Nurse B is not on shift.','A and B fill Nurse A’s two chairs at 9:00. Nurse B cannot cover C’s whole visit at the requested time. The shift matters throughout the appointment.','Each choice changes exactly one input. Bringing Nurse B in earlier is a staffing proposal; moving C later is a patient-time proposal.'],introTitle:'A free row does not supply a nurse.',introText:'The department grid has space for C. The question is whether a nurse can cover the visit from start to finish.',focus:'C needs 90 minutes, beginning at 9:00.',coverage:'Only Nurse A’s two chairs are covered before 10:00. Nurse B’s coverage begins later.'},
+ room:{titles:['B needs a private room.','Each nurse covers one different kind of space.','The empty chair cannot meet B’s requirement.','Can a rearrangement preserve the requirement?'],texts:['A is booked into the private room. B is a new request for 8:30–10:00, shown with a dashed outline. B is not booked into the ordinary chair.','Nurse A covers the private room; Nurse B covers the ordinary chair. Both are working all morning. The type of space matters as well as its availability.','Keep A’s original assignment. Nurse A’s private room is occupied; Nurse B’s ordinary chair cannot serve B. B’s private-room flag stays Yes.','Try one proposal while keeping B’s private-room requirement intact. Whether a production system can search across a rearrangement is a question for a scheduling team.'],introTitle:'Available space must be suitable space.',introText:'A can use either space. B must have the private room. We preserve that distinction in every experiment.',focus:'B needs privacy for a 90-minute visit, beginning at 8:30.',coverage:'Nurse A covers one private room. Nurse B covers one ordinary chair. Neither nurse can cover two patients at once.'},
+ full:{titles:['Two long visits already fill the morning.','The staffed capacity is two patients at a time.','There is no nurse available for C.','A clear limit is a useful result.'],texts:['A and B each occupy the full 8:00–12:00 morning. C has a 90-minute booking in another department row. Use Next to test the apparent opening.','Nurse A and Nurse B each cover one patient at a time. Both shifts end at noon. There is an additional physical chair, but no extra nurse capacity.','A and B occupy both nurses for the entire window. C cannot be covered without changing the resources, existing bookings, or stated rules.','Here, desired behavior means detecting the limit before confirming C. Try later starts: no proposal should turn green while the same capacity stays full.'],introTitle:'This time, better information reveals a real limit.',introText:'C’s row looks available. But both nurses are already committed for every minute of the morning.',focus:'C needs 90 minutes. The original requested start is 9:00.',coverage:'There are three physical chairs, but the two nurses can cover only two occupied chairs at a time.'}
+};
+const clock=m=>{const h=8+Math.floor(m/60);return h+':'+String(m%60).padStart(2,'0')};
+const patientColor=id=>'var(--'+id.toLowerCase()+')';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function axis(){return '<div class="axis" aria-hidden="true">'+[0,60,120,180,240].map(t=>'<span class="tick" style="left:'+t/240*100+'%">'+clock(t)+'</span>').join('')+'</div>'}
+function block(p,pending=false){const label='Patient '+p.id+', '+clock(p.start)+' to '+clock(p.end)+(pending?', '+(state.step===3?'unconfirmed request':p.request?'request not offered':'unassigned'):'')+(p.changed?', proposed change':'');return '<div class="event '+(state.patient===p.id?'selected ':'')+(pending?'pending ':'')+(p.changed?'proposed':'')+'" style="--patient:'+patientColor(p.id)+';left:'+p.start/240*100+'%;width:calc('+(p.end-p.start)/240*100+'% - 3px);top:'+(5+(p.lane||0)*36)+'px" role="img" aria-label="'+esc(label)+'" title="'+esc(label)+'"><strong>'+esc(p.id)+'</strong><span class="event-detail">'+(p.end-p.start)+' min'+(p.needsPrivate?' · private':'')+'</span></div>'}
+function row(label,html,height=42,cls=''){return '<div class="row '+cls+'"><div class="row-label">'+label+'</div><div class="track" style="height:'+height+'px">'+html+'</div></div>'}
+function displayCandidatePending(p){return p.request||(state.step===3&&!p.nurse)}
+function renderDepartment(s,c){
+ let html=axis();
+ c.deptRows.forEach((name,i)=>{const entries=s.patients.filter(p=>p.row===i&&!displayCandidatePending(p));html+=row('<strong>'+esc(name)+'</strong>',entries.map(p=>block({...p,lane:0})).join(''));});
+ s.patients.filter(displayCandidatePending).forEach(p=>{html+=row('<strong>'+p.id+'’s request</strong><small>'+(p.needsPrivate?'Private room needed':'Not confirmed')+'</small>',block({...p,lane:0},true),48,'unassigned')});
+ $('department').innerHTML=html;
+ $('department-sub').textContent=state.scenario==='room'?'Room availability and a request that requires privacy.':'Department rows are not physical chair assignments.';
+ const pending=s.patients.filter(displayCandidatePending).length;
+ $('department-count').textContent=state.step===3?(s.status==='fit'?s.totalCount+' in proposed schedule':s.assignedCount+' covered · '+pending+' unresolved'):(state.scenario==='room'?'1 booked · 1 request':s.totalCount+' booked');
+ $('department-foot').textContent=state.step===3?'A proposed arrangement must also fit the nurse view. Nothing here confirms a real appointment.':state.scenario==='room'?'B’s dashed block is a separate request. It is not a booking into the ordinary chair.':'Each block fits its scheduling row. Next, check who can cover the patients.';
+}
+function renderNurses(s){
+ const coverage=state.step===1;let html=axis();
+ s.nurses.forEach(n=>{const off=(n.start>0?'<div class="off-shift" style="left:0;width:'+n.start/240*100+'%">Not on shift</div>':'')+(n.end<240?'<div class="off-shift" style="left:'+n.end/240*100+'%;width:'+(240-n.end)/240*100+'%">Off shift</div>':'');const entries=s.patients.filter(p=>p.nurse===n.id);const band=coverage?'<div class="coverage-band" style="left:'+n.start/240*100+'%;width:'+(n.end-n.start)/240*100+'%">On shift · '+n.cap+' '+(n.cap===1?'patient':'patients')+' at a time</div>':entries.map(p=>block(p)).join('');html+=row('<strong>'+esc(n.id)+'</strong><small>'+clock(n.start)+'–'+clock(n.end)+'</small><small>'+(n.room?(n.room==='private'?'Private room':'Ordinary chair'):n.cap+' covered '+(n.cap===1?'chair':'chairs'))+'</small>',off+band,Math.max(n.cap*36+6,70));});
+ if(!coverage)s.patients.filter(p=>!p.nurse).forEach(p=>{html+=row('<strong>'+(state.step===3?'Not confirmable':p.request?'Not offered':'No nurse yet')+'</strong>',block({...p,lane:0},true),44,'unassigned')});
+ $('nurses').innerHTML=html;$('nurse-board').className='board '+(coverage?'coverage-only':'');
+ $('nurse-title').textContent=coverage?'Who is actually working?':'Individual nurse assignments';
+ $('nurse-sub').textContent=coverage?'Time runs left to right. Hatched time is outside the shift.':'Each lane is capacity for one patient, not a fixed chair number.';
+ $('nurse-count').textContent=coverage?s.nurses.length+' nurses':s.status==='fit'?s.assignedCount+' / '+s.totalCount+' fit these rules':s.assignedCount+' assigned · '+(s.totalCount-s.assignedCount)+' unresolved';
+ $('nurse-count').className='count '+(coverage?'':s.status==='fit'?'good':'problem');
+ $('nurse-foot').textContent=coverage?UI[state.scenario].coverage:state.step===2?'The appointments are still at their original times. Review the exact reason beside each nurse.':s.status==='fit'?'Feasible under the listed rules. Any change still needs the relevant people’s agreement.':'The unresolved request remains visible. This proposal does not silently override a rule.';
+}
+function renderDiagnostics(s){
+ const candidate=s.patients.find(p=>p.id===s.candidateId);
+ $('diagnosis').innerHTML='<h3>Can '+candidate.id+' go to each nurse?</h3>'+s.diagnostics.map(d=>'<div class="diagnostic '+(d.eligible?'eligible':'')+'"><div class="diagnostic-title"><span>'+esc(d.nurse)+'</span><span class="diagnostic-status">'+(d.eligible?(candidate.nurse===d.nurse?'Assigned in this proposal':'Fits these rules'):'Cannot take '+candidate.id)+'</span></div>'+(d.reasons.length?'<ul>'+d.reasons.map(r=>'<li>'+esc(r.message)+'</li>').join('')+'</ul>':'<p>The whole visit fits this nurse’s hours, capacity, start rule, and room type.</p>')+'</div>').join('');
+}
+function render(){
+ $('duration-view').hidden=state.scenario!=='duration';$('assignment-view').hidden=state.scenario==='duration';document.querySelector('.follow').hidden=state.scenario==='duration';
+ if(state.scenario==='duration'){renderDuration();return;}
+ document.querySelectorAll('[data-step]').forEach((b,i)=>b.innerHTML='<span class="step-number">STEP '+(i+1)+'</span>'+STEP_NAMES[i]);
+ const c=CASES[state.scenario],u=UI[state.scenario],s=buildScenario(state.scenario,state.step===3?state.experiment:'baseline');
+ document.querySelectorAll('[data-case]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.case===state.scenario)));
+ document.querySelectorAll('[data-step]').forEach(b=>{if(Number(b.dataset.step)===state.step)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+ document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.mode==='desired')===(state.step===3))));
+ $('guide-label').textContent='Step '+(state.step+1)+' of 4 · '+c.title;
+ $('guide-title').textContent=u.titles[state.step];$('guide-text').textContent=u.texts[state.step];
+ $('compare-toolbar').hidden=state.step<2;$('patient-controls').innerHTML=c.patients.map(p=>'<button class="patient-pick" data-patient="'+p.id+'" aria-label="Follow patient '+p.id+'" aria-pressed="'+(state.patient===p.id)+'" style="--patient:'+patientColor(p.id)+'">'+p.id+'</button>').join(' ');
+ $('department-board').hidden=state.step===1||(state.step>=2&&!state.showDepartment);$('nurse-board').hidden=state.step===0;
+ $('toggle-department').hidden=state.step<2;$('toggle-department').textContent=state.showDepartment?'Hide department schedule':'Compare with department schedule';$('toggle-department').setAttribute('aria-expanded',String(state.showDepartment));
+ $('resource-summary').innerHTML='<strong>'+s.physicalChairs+' physical '+(s.physicalChairs===1?'chair':'chairs')+'</strong> · '+s.nurses.length+' nurses · coverage depends on their hours and limits';
+ renderDepartment(s,c);renderNurses(s);
+ $('legend').hidden=state.step===1;
+ $('intro').hidden=state.step>=2;$('intro').innerHTML='<h2>'+esc(state.step===0?u.introTitle:'Count coverage at the requested time.')+'</h2><p>'+esc(state.step===0?u.introText:u.coverage)+'</p><p class="focus-note"><strong>Follow patient '+c.focus+'.</strong> '+esc(u.focus)+'</p>';
+ $('experiment-panel').hidden=state.step!==3;
+ $('experiments').innerHTML=c.experiments.map(x=>'<button class="experiment" data-experiment="'+esc(x.id)+'" aria-pressed="'+(state.experiment===x.id)+'">'+esc(x.label)+'</button>').join('');
+ $('result').className='result '+(s.status==='fit'?'fit':'');$('result').innerHTML='<h3>'+esc(s.status==='fit'?'This proposal fits.':'This proposal still cannot cover '+s.candidateId+'.')+'</h3><p>'+esc(s.lesson)+'</p><p class="change-note"><strong>'+esc(s.changeTitle)+'</strong><br>'+esc(s.changeText)+'</p>';
+ $('diagnosis').hidden=state.step<2;renderDiagnostics(s);
+ const p=s.patients.find(p=>p.id===state.patient),original=c.patients.find(q=>q.id===p.id);let note=clock(p.start)+'–'+clock(p.end)+' · '+(p.end-p.start)+' minutes. '+(p.nurse?'Assigned to '+p.nurse+'.':'No nurse can take this visit in the displayed arrangement.');
+ if(state.step===3){note+=' '+(p.start!==original.start?'Proposed time change from '+clock(original.start)+'.':p.nurse!==original.nurse?'Proposed assignment change.':'Original time retained.');}if(p.needsPrivate)note+=' Private room required: Yes.';
+ $('selection').hidden=state.step<2;$('selection').innerHTML='<h3 class="selection-title"><span class="tag" style="--patient:'+patientColor(p.id)+'">'+p.id+'</span>Follow the same patient</h3><p>'+esc(note)+'</p>';
+ $('rules-heading').textContent=state.step===3?'Resources and rules for this experiment':'Rules in this example';
+ const rules=s.nurses.map(n=>n.id+': '+clock(n.start)+'–'+clock(n.end)+', up to '+n.cap+' '+(n.cap===1?'patient':'patients')+' at a time'+(n.room?' in the '+(n.room==='private'?'private room':'ordinary chair'):'')+'.');rules.push('There are '+s.physicalChairs+' physical chairs shared across these patients.');rules.push('One nurse covers the whole visit; one start per nurse at any given time.');if(state.scenario==='room')rules.push('B must have a private room. A does not require privacy.');if(state.experiment==='chair'&&state.step===3)rules.push('The added physical chair does not increase any nurse’s permitted capacity.');if(state.scenario==='full')rules.push('A and B keep their 8:00–12:00 visits. Both shifts end at noon.');
+ $('rules').innerHTML=rules.map(r=>'<li>'+esc(r)+'</li>').join('');
+ $('proof').hidden=!(state.scenario==='full'&&state.step>=2);$('proof').innerHTML='<strong>Why moving C later cannot solve this example</strong><p>A and B occupy both nurses for all four hours. C needs another 90 minutes, but there is no covered opening between 8:00 and 12:00. Every possible start that would finish by noon remains blocked. This conclusion holds with these bookings and capacities fixed.</p>';
+ $('question-card').hidden=state.step<2;$('question').textContent=c.question;
+ $('nav-position').innerHTML='Example '+(KEYS.indexOf(state.scenario)+1)+' of '+KEYS.length+'<strong>Step '+(state.step+1)+' · '+STEP_NAMES[state.step]+'</strong>';
+ $('back').disabled=state.step===0;$('next').textContent=state.step===0?'Next: nurse coverage →':state.step===1?'Next: why it fails →':state.step===2?'Next: try one change →':state.scenario==='full'?'Start over ↺':'Next example →';
+ const validation=validateSnapshot(s);if(!validation.valid)throw Error(validation.issues.map(issue=>issue.message).join('; '));
+}
+function setStep(step,defaultProposal=false){state.step=step;state.experiment=step===3&&defaultProposal?caseInfo(state.scenario).desiredExperiment:'baseline';state.showDepartment=false;render();document.querySelector('.guide').scrollIntoView({block:'start',behavior:'instant'});}
+function selectCase(key){state.scenario=key;state.step=0;state.experiment='baseline';state.patient=caseInfo(key).focus;state.showDepartment=false;render();document.querySelector('.examples').scrollIntoView({block:'start',behavior:'instant'});}
+document.querySelector('.examples').addEventListener('click',e=>{const b=e.target.closest('[data-case]');if(b)selectCase(b.dataset.case)});
+document.querySelector('.steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(b)setStep(Number(b.dataset.step))});
+$('next').addEventListener('click',()=>{if(state.step<3)setStep(state.step+1);else selectCase(KEYS[(KEYS.indexOf(state.scenario)+1)%KEYS.length])});
+$('back').addEventListener('click',()=>{if(state.step>0)setStep(state.step-1)});
+document.querySelector('.modes').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(b)setStep(b.dataset.mode==='desired'?3:2,b.dataset.mode==='desired')});
+$('experiments').addEventListener('click',e=>{const b=e.target.closest('[data-experiment]');if(!b)return;state.experiment=b.dataset.experiment;state.patient=CASES[state.scenario].focus;render();$('experiments').querySelector('[data-experiment="'+state.experiment+'"]').focus()});
+$('patient-controls').addEventListener('click',e=>{const b=e.target.closest('[data-patient]');if(!b)return;state.patient=b.dataset.patient;render();$('patient-controls').querySelector('[data-patient="'+state.patient+'"]').focus()});
+$('toggle-department').addEventListener('click',()=>{state.showDepartment=!state.showDepartment;render()});
+$('copy').addEventListener('click',async()=>{const c=CASES[state.scenario],s=buildScenario(state.scenario,state.step===3?state.experiment:'baseline');const text='Using a fictional '+c.title.toLowerCase()+' example to examine a hypothetical scheduling workflow: '+c.question+(state.step===3?' The experiment illustrated this: '+s.lesson+' '+s.changeText:'');try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(text);else{const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();try{if(!document.execCommand('copy'))throw Error('copy');}finally{field.remove();}}$('copy').textContent='Copied';$('copy-status').textContent='Question copied to clipboard.';setTimeout(()=>$('copy').textContent='Copy question',1800)}catch{$('copy-status').textContent='Select and copy the question above.';$('copy').textContent='Select question to copy';}});
+render();
+</script>
+</body>
+
+</html>
